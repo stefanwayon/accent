@@ -1,5 +1,6 @@
 #include "Display.h"
 
+#ifdef BOARD_WAVESHARE
 // Waveshare ESP32 SPI pin assignments.
 const int8_t kSpiPinMiso = 12;
 const int8_t kSpiPinSck = 13;
@@ -8,6 +9,18 @@ const int8_t kSpiPinCs = 15;
 const int8_t kSpiPinBusy = 25;
 const int8_t kSpiPinRst = 26;
 const int8_t kSpiPinDc = 27;
+#endif
+
+#ifdef BOARD_DOT
+// DOT DevKit ESP32 SPI pin assignments.
+const int8_t kSpiPinMiso = 12;
+const int8_t kSpiPinSck = 13;
+const int8_t kSpiPinMosi = 14;
+const int8_t kSpiPinCs = 5;
+const int8_t kSpiPinBusy = 4;
+const int8_t kSpiPinRst = 16;
+const int8_t kSpiPinDc = 17;
+#endif
 
 // Display color variant identifiers for the server request.
 const String kVariant7Color = "7color";
@@ -26,15 +39,17 @@ void Display::Initialize() {
                    /* BUSY M1 */ 32, /* BUSY S1 */ 26, /* BUSY M2 */ 18,
                    /* BUSY S2 */ 4)
 #else
-      // Use the standard Waveshare configuration for all other display types.
+      // Use the standard configuration for all other display types.
       DISPLAY_TYPE(kSpiPinCs, kSpiPinDc, kSpiPinRst, kSpiPinBusy)
 #endif
   );
   gx_epd_->init(serial_speed_);
 
+#ifdef BOARD_WAVESHARE
   // Remap the Waveshare ESP32's non-standard SPI pins.
   SPI.end();
   SPI.begin(kSpiPinSck, kSpiPinMiso, kSpiPinMosi, kSpiPinCs);
+#endif
 
   // Start paged drawing.
   gx_epd_->firstPage();

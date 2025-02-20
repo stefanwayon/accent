@@ -7,7 +7,13 @@
 const uint32_t kSerialSpeed = 115200;
 
 // The GPIO pin used to reset Wifi settings.
+#ifdef BOARD_WAVESHARE
 const uint8_t kWifiResetPin = 23;
+#endif
+
+#ifdef BOARD_DOT
+const uint8_t kWifiResetPin = 13;
+#endif
 
 // The base URL for server requests.
 const String kBaseUrl = "https://accent.ink";
