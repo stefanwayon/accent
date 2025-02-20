@@ -1,13 +1,13 @@
+import re
 from astral import AstralError
 from cachetools import cached
 from cachetools import TTLCache
 from json.decoder import JSONDecodeError
-from logging import info
+from logging import info, warning
 from requests import get
 from requests import RequestException
 
-from firestore import DataError
-from firestore import Firestore
+from datastore import datastore, DataError
 
 # The endpoint of the OpenWeather One Call API.
 # Spec: https://openweathermap.org/api/one-call-api
@@ -25,7 +25,7 @@ class Weather(object):
     """A wrapper around the OpenWeather One Call API with a cache."""
 
     def __init__(self, geocoder):
-        self._open_weather_api_key = Firestore().open_weather_api_key()
+        self._open_weather_api_key = datastore.create().open_weather_api_key()
         self._geocoder = geocoder
 
     def _icon(self, user):
@@ -56,7 +56,7 @@ class Weather(object):
             response_json = get(request_url).json()
             icon = response_json['current']['weather'][0]['icon']
         except (RequestException, JSONDecodeError, KeyError) as e:
-            raise DataError(e)
+            raise DataError(e) from e
 
         info('Weather: %s' % icon)
         return icon

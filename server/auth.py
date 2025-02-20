@@ -1,3 +1,4 @@
+from typing import TypeGuard
 from flask import request
 from flask import url_for
 from functools import wraps
@@ -7,8 +8,8 @@ from oauth2client.client import HttpAccessTokenRefreshError
 from oauth2client.client import OAuth2WebServerFlow
 from re import compile as re_compile
 
-from firestore import Firestore
-from firestore import GoogleCalendarStorage
+from datastore import datastore
+from datastore import GoogleCalendarStorage
 from response import display_metadata
 from response import forbidden_response
 from response import settings_response
@@ -39,10 +40,10 @@ def _oauth_url():
     return url_for('oauth', _external=True)
 
 
-def _valid_key(key):
+def _valid_key(key) -> TypeGuard[str]:
     """Checks if a user key's format is as expected."""
 
-    return KEY_PATTERN.fullmatch(key)
+    return KEY_PATTERN.fullmatch(key) is not None
 
 
 def validate_key(func):
@@ -61,7 +62,7 @@ def validate_key(func):
 def user_auth(image_response=None, bad_response=forbidden_response):
     """A decorator for Flask route functions to enforce user authentication."""
 
-    firestore = Firestore()
+    firestore = datastore.create()
 
     def decorator(func):
 
@@ -106,7 +107,7 @@ def user_auth(image_response=None, bad_response=forbidden_response):
 def _google_calendar_flow(key):
     """Creates the OAuth flow."""
 
-    secrets = Firestore().google_calendar_secrets()
+    secrets = datastore.create().google_calendar_secrets()
     return OAuth2WebServerFlow(client_id=secrets['client_id'],
                                client_secret=secrets['client_secret'],
                                scope=GOOGLE_CALENDAR_SCOPE,

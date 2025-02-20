@@ -11,7 +11,7 @@ from urllib.parse import quote
 
 from graphics import SCREENSTAR_SMALL_REGULAR
 from firestore import DataError
-from firestore import Firestore
+from datastore import datastore
 from graphics import draw_text
 from local_time import LocalTime
 
@@ -50,7 +50,7 @@ class GoogleMaps(object):
     """A wrapper around the Google Static Map and Directions APIs."""
 
     def __init__(self, geocoder):
-        self._google_maps_api_key = Firestore().google_maps_api_key()
+        self._google_maps_api_key = datastore.create().google_maps_api_key()
         self._local_time = LocalTime(geocoder)
         self._vision_client = vision.ImageAnnotatorClient()
 

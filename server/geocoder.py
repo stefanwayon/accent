@@ -2,7 +2,7 @@ from astral import GoogleGeocoder
 from cachetools import cached
 from cachetools import TTLCache
 
-from firestore import Firestore
+from datastore import datastore
 
 # The maximum number of locations kept in the cache.
 MAX_CACHE_SIZE = 100
@@ -15,7 +15,7 @@ class Geocoder(GoogleGeocoder):
     """A version of astral.GoogleGeocoder with a TTLCache."""
 
     def __init__(self):
-        google_maps_api_key = Firestore().google_maps_api_key()
+        google_maps_api_key = datastore.create().google_maps_api_key()
         GoogleGeocoder.__init__(self, api_key=google_maps_api_key, cache=False)
 
     @cached(cache=TTLCache(maxsize=MAX_CACHE_SIZE, ttl=CACHE_TTL_S))

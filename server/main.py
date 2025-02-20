@@ -20,8 +20,8 @@ from commute import Commute
 from content import ContentError
 from epd import DEFAULT_DISPLAY_VARIANT
 from everyone import Everyone
-from firestore import Firestore
-from firestore import GoogleCalendarStorage
+from datastore import datastore, GoogleCalendarStorage
+from sqlitestore import SQLiteStore
 from geocoder import Geocoder
 from google_calendar import GoogleCalendar
 from response import content_response
@@ -32,6 +32,9 @@ from response import settings_url
 from response import text_response
 from schedule import Schedule
 from wittgenstein import Wittgenstein
+
+
+datastore.set(lambda: SQLiteStore("database.sqlite"))
 
 # The URL of the Medium story about Accent.
 INFO_URL = ('https://medium.com/@maxbraun/meet-accent-352cfa95813a'
@@ -205,10 +208,14 @@ def hello_get(key):
             calendar_credentials = None
 
     calendar_connected = calendar_credentials is not None
-    return render_template(HELLO_TEMPLATE, key=key, user=Firestore().user(key),
-                           calendar_connected=calendar_connected,
-                           calendar_connect_url=google_calendar_step1(key),
-                           calendar_disconnect_url=ACCOUNT_ACCESS_URL)
+    return render_template(
+        HELLO_TEMPLATE,
+        key=key,
+        user=datastore.create().user(key),
+        calendar_connected=calendar_connected,
+        calendar_connect_url=google_calendar_step1(key),
+        calendar_disconnect_url=ACCOUNT_ACCESS_URL,
+    )
 
 
 @app.route('/hello/<key>', methods=['POST'])
@@ -227,7 +234,7 @@ def hello_post(key):
                 if name and start and image]
 
     # Update the existing user data or create a new one.
-    firestore = Firestore()
+    firestore = datastore.create()
     firestore.set_user(key, {
         'home': form['home'],
         'work': form['work'],

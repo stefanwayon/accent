@@ -4,7 +4,7 @@ from cachetools import TTLCache
 from content import ContentError
 from content import ImageContent
 from firestore import DataError
-from firestore import Firestore
+from datastore import datastore
 from google_maps import GoogleMaps
 from PIL import Image
 
@@ -21,7 +21,7 @@ class Everyone(ImageContent):
     def __init__(self, geocoder):
         self._geocoder = geocoder
         self._google_maps = GoogleMaps(geocoder)
-        self._firestore = Firestore()
+        self._firestore = datastore.create()
 
     @cached(cache=TTLCache(maxsize=1, ttl=CACHE_TTL_S))
     def _markers(self):

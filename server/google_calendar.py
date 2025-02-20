@@ -13,8 +13,7 @@ from oauth2client.client import HttpAccessTokenRefreshError
 from PIL import Image
 from PIL.ImageDraw import Draw
 
-from firestore import DataError
-from firestore import GoogleCalendarStorage
+from datastore import GoogleCalendarStorage, DataError
 from graphics import draw_text
 from graphics import SUBVARIO_CONDENSED_MEDIUM
 from content import ContentError

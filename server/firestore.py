@@ -9,9 +9,9 @@ from logging import info
 from logging import warning
 from oauth2client.client import HttpAccessTokenRefreshError
 from oauth2client.client import OAuth2Credentials
-from oauth2client.client import Storage
 from os import environ
-from threading import Lock
+
+from datastore import DataError
 
 
 class Firestore(object):
@@ -134,38 +134,3 @@ class Firestore(object):
             return
 
         user.update(fields)
-
-
-class GoogleCalendarStorage(Storage):
-    """Credentials storage for the Google Calendar API using Firestore."""
-
-    def __init__(self, key):
-        super(GoogleCalendarStorage, self).__init__(lock=Lock())
-        self._firestore = Firestore()
-        self._key = key
-
-    def locked_get(self):
-        """Loads credentials from Firestore and attaches this storage."""
-
-        credentials = self._firestore.google_calendar_credentials(self._key)
-        if not credentials:
-            return None
-        credentials.set_store(self)
-        return credentials
-
-    def locked_put(self, credentials):
-        """Saves credentials to Firestore."""
-
-        self._firestore.update_google_calendar_credentials(self._key,
-                                                           credentials)
-
-    def locked_delete(self):
-        """Deletes credentials from Firestore."""
-
-        self._firestore.delete_google_calendar_credentials(self._key)
-
-
-class DataError(Exception):
-    """An error indicating issues retrieving data."""
-
-    pass
