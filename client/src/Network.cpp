@@ -127,9 +127,13 @@ bool Network::HttpGet(HTTPClient* http, const String& base_url,
     String value = parameters[i + 1];
     url += delimiter + key + "=" + value;
   }
-
+  
   Serial.printf("Requesting URL: %s\n", url.c_str());
-  if (!http->begin(url, kRootCertificate)) {
+  auto connection_established = url.startsWith("https://") 
+      ? http->begin(url, kRootCertificate) 
+      : http->begin(url);
+
+  if (!connection_established) {
     Serial.printf("Failed to connect to server: %s\n", url.c_str());
     return false;
   }
